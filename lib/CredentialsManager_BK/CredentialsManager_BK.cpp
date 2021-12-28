@@ -71,12 +71,30 @@ void CMBK::begin(){
 
    WiFi.disconnect(false,false);
    WiFi.mode(WIFI_AP_STA);
-   WiFi.softAP("CMBK");
+
+   char ApSsid[8] = "CMBK";
+   uint8_t NumberOfCMBK = 0;
+   int NumberOfSSID     = WiFi.scanNetworks();
+   if (NumberOfSSID != 0) {
+      for (int i = 0; i < NumberOfSSID; ++i) {
+         // Print SSID and RSSI for each network found
+         if (WiFi.SSID(i) == "CMBK"){
+            NumberOfCMBK++;
+         }
+      }
+      char cNumberOfCMBK[4];
+      itoa(NumberOfCMBK, cNumberOfCMBK, 10);
+      strcat(ApSsid,cNumberOfCMBK);
+   }
+   #ifdef Serial_Debug
+      Serial.print("AP name: ");Serial.println(ApSsid);
+   #endif
+
+   WiFi.softAP(ApSsid);
 
    #ifdef Serial_Debug
       IPAddress IP = WiFi.softAPIP();
-      Serial.print("AP IP address: ");
-      Serial.println(IP);
+      Serial.print("IP address: ");Serial.println(IP);
    #endif
 
    BKws.onEvent(onWsEvent);
